@@ -1,18 +1,38 @@
-import React from 'react';
+import React from "react";
 
-const Cart = ({ cart, removeFromCart, total }) => {
+const Cart = ({ cart, removeFromCart, clearCart, calculateTotal }) => {
   return (
-    <div>
-      <h2>Cart</h2>
-      <ul className="list-group mb-3">
-        {cart.map((item) => (
-          <li key={item.id} className="list-group-item d-flex justify-content-between align-items-center">
-            {item.name} - ₹{item.price} x {item.quantity}
-            <button className="btn btn-danger btn-sm" onClick={() => removeFromCart(item.id)}>Remove</button>
-          </li>
-        ))}
-      </ul>
-      <h3>Total: ₹{total}</h3>
+    <div className="card mt-4">
+      <div className="card-header">
+        <h2>Cart</h2>
+      </div>
+      <div className="card-body">
+        <ul className="list-group">
+          {cart.map((product) => (
+            <li
+              key={product.id}
+              className="list-group-item d-flex justify-content-between align-items-center"
+            >
+              <div>
+                <h5>{product.name}</h5>
+                <p>₹{product.price}</p>
+              </div>
+              <button
+                className="btn btn-danger btn-sm"
+                onClick={() => removeFromCart(product)}
+              >
+                Remove
+              </button>
+            </li>
+          ))}
+        </ul>
+        <div className="mt-3">
+          <h4>Total: ₹{calculateTotal()}</h4>
+          <button className="btn btn-warning btn-sm" onClick={clearCart}>
+            Clear Cart
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
