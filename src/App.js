@@ -84,7 +84,6 @@ const App = () => {
 
   const clearCart = () => {
     setCart([]);
-    setProducts(initialProducts);
   };
 
   const calculateTotal = () => {
@@ -94,18 +93,31 @@ const App = () => {
     );
   };
 
+  const updateProducts = (cartItems) => {
+    const updatedProducts = products.map((product) => {
+      const cartItem = cartItems.find((item) => item.id === product.id);
+      if (cartItem) {
+        return { ...product, quantity: product.quantity - cartItem.quantity };
+      }
+      return product;
+    });
+    setProducts(updatedProducts);
+  };
+
   return (
     <div className="container mt-5">
-      <h1 className="fw-bold m-4 display-2">Canteen Management</h1>
+      <h1 className="fw-bold">Canteen Management</h1>
+      <div className="d-flex justify-content-end mb-4">
+        {cart.length > 0 && (
+          <button
+            className="btn btn-primary"
+            onClick={() => setShowCartModal(true)}
+          >
+            <i className="fas fa-shopping-cart"></i> View Cart ({cart.length})
+          </button>
+        )}
+      </div>
       <ProductList products={products} addToCart={addToCart} />
-      {cart.length > 0 && (
-        <button
-          className="btn btn-primary mt-3"
-          onClick={() => setShowCartModal(true)}
-        >
-          View Cart ({cart.length} items)
-        </button>
-      )}
       <CartModal
         show={showCartModal}
         handleClose={() => setShowCartModal(false)}
@@ -115,6 +127,7 @@ const App = () => {
         removeFromCart={removeFromCart}
         clearCart={clearCart}
         calculateTotal={calculateTotal}
+        updateProducts={updateProducts}
       />
     </div>
   );

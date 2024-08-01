@@ -10,7 +10,15 @@ const CartModal = ({
   removeFromCart,
   clearCart,
   calculateTotal,
+  updateProducts,
 }) => {
+  const handleCashout = () => {
+    updateProducts(cart);
+    alert("Cashout successful!");
+    clearCart();
+    handleClose();
+  };
+
   return (
     <Modal show={show} onHide={handleClose}>
       <Modal.Header closeButton>
@@ -61,6 +69,9 @@ const CartModal = ({
         </Button>
         <Button variant="warning" onClick={clearCart}>
           Clear Cart
+        </Button>
+        <Button variant="success" onClick={handleCashout}>
+          Cashout
         </Button>
       </Modal.Footer>
     </Modal>
