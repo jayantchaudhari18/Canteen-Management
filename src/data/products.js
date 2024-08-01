@@ -58,7 +58,7 @@ export const initialProducts = [
   {
     id: 8,
     name: "Burger",
-    price: 80,
+    price: 45,
     quantity: 8,
     image:
       "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSKDj37rAz4WOBZm0RKC0tLJ7IpQHM94veoIg&s",
@@ -78,5 +78,21 @@ export const initialProducts = [
     quantity: 15,
     image:
       "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQYFULypZgudRiujz0RZgtiT5R7Z2rilcdcBQ&s",
+  },
+  {
+    id: 11,
+    name: "Chilly Potato",
+    price: 50,
+    quantity: 16,
+    image:
+      "https://rakskitchen.net/wp-content/uploads/2022/07/honey-chilli.jpg",
+  },
+  {
+    id: 12,
+    name: "White Sauce Pasta",
+    price: 60,
+    quantity: 18,
+    image:
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSWscQ2davNustRjPXTyK1E6u3oeZ7zqyLT5w&s",
   },
 ];

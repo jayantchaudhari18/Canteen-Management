@@ -14,17 +14,21 @@ const ProductList = ({ products, addToCart }) => {
               className="card-img-top product-image"
               alt={product.name}
             />
-            <div className="card-body">
-              <h5 className="card-title">{product.name}</h5>
-              <p className="card-text">Price: ₹{product.price}</p>
-              <p className="card-text">Quantity: {product.quantity}</p>
-              <button
-                className="btn btn-primary"
-                onClick={() => addToCart(product)}
-                disabled={product.quantity === 0}
-              >
-                Add to Cart
-              </button>
+            <div className="card-body row">
+              <div className="col">
+                <h4 className="card-title">{product.name}</h4>
+                <p className="card-text">Price: ₹{product.price}</p>
+                <p className="card-text">Quantity: {product.quantity}</p>
+              </div>
+              <div className="col-4 m-2 my-auto">
+                <button
+                  className="btn btn-primary"
+                  onClick={() => addToCart(product)}
+                  disabled={product.quantity === 0}
+                >
+                  Add to Cart
+                </button>
+              </div>
             </div>
           </div>
         </div>

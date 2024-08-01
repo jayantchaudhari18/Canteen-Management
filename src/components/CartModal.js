@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/alt-text */
 import React from "react";
 import { Modal, Button } from "react-bootstrap";
 
@@ -31,9 +32,17 @@ const CartModal = ({
               key={product.id}
               className="list-group-item d-flex justify-content-between align-items-center"
             >
-              <div>
-                <h5>{product.name}</h5>
-                <p>₹{product.price}</p>
+              <div className="row">
+                <div className="col">
+                  <img
+                    className="img-fluid rounded-3 w-50"
+                    src={product.image}
+                  ></img>
+                </div>
+                <div className="col">
+                  <h5>{product.name}</h5>
+                  <p>₹{product.price}</p>
+                </div>
               </div>
               <div className="d-flex align-items-center">
                 <button
