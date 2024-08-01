@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/Canteen-Management/static/css/main.b30d4df3.css",
+    "main.js": "/Canteen-Management/static/js/main.96ce0ce9.js",
+    "static/js/453.a7ce2ae8.chunk.js": "/Canteen-Management/static/js/453.a7ce2ae8.chunk.js",
+    "index.html": "/Canteen-Management/index.html",
+    "main.b30d4df3.css.map": "/Canteen-Management/static/css/main.b30d4df3.css.map",
+    "main.96ce0ce9.js.map": "/Canteen-Management/static/js/main.96ce0ce9.js.map",
+    "453.a7ce2ae8.chunk.js.map": "/Canteen-Management/static/js/453.a7ce2ae8.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.b30d4df3.css",
+    "static/js/main.96ce0ce9.js"
+  ]
+}
