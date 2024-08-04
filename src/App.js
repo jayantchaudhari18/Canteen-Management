@@ -3,83 +3,65 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
 import ProductList from "./components/ProductList";
 import CartModal from "./components/CartModal";
-import { initialProducts } from "./data/products";
+import useProducts from "./hooks/useProducts";
+import { ref, update } from "firebase/database";
+import { database } from "./firebase";
 
 const App = () => {
-  const [products, setProducts] = useState([]);
+  const { products, updateProductQuantity } = useProducts();
   const [cart, setCart] = useState([]);
   const [showCartModal, setShowCartModal] = useState(false);
+  // New state to keep track of original quantities
+  const [originalQuantities, setOriginalQuantities] = useState({});
 
+  // Initialize originalQuantities when products are loaded
   useEffect(() => {
-    const savedProducts =
-      JSON.parse(localStorage.getItem("products")) || initialProducts;
-    const savedCart = JSON.parse(localStorage.getItem("cart")) || [];
-    setProducts(savedProducts);
-    setCart(savedCart);
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem("products", JSON.stringify(products));
+    setOriginalQuantities(
+      products.reduce((acc, product) => {
+        acc[product.id] = product.quantity;
+        return acc;
+      }, {})
+    );
   }, [products]);
 
-  useEffect(() => {
-    localStorage.setItem("cart", JSON.stringify(cart));
-  }, [cart]);
-
   const addToCart = (product) => {
-    setCart([...cart, { ...product, quantity: 1 }]);
-    setProducts(
-      products.map((p) =>
-        p.id === product.id ? { ...p, quantity: p.quantity - 1 } : p
-      )
-    );
+    setCart((prevCart) => {
+      const productInCart = prevCart.find((p) => p.id === product.id);
+      if (productInCart) {
+        return prevCart.map((p) =>
+          p.id === product.id ? { ...p, quantity: p.quantity + 1 } : p
+        );
+      }
+      return [...prevCart, { ...product, quantity: 1 }];
+    });
+    // Removed updateProductQuantity call
     setShowCartModal(true);
   };
 
   const incrementQuantity = (productId) => {
-    const updatedCart = cart.map((p) => {
-      if (p.id === productId) {
-        const product = products.find((prod) => prod.id === productId);
-        if (product.quantity > 0) {
-          return { ...p, quantity: p.quantity + 1 };
-        }
-      }
-      return p;
-    });
-    setCart(updatedCart);
-    setProducts(
-      products.map((p) =>
-        p.id === productId ? { ...p, quantity: p.quantity - 1 } : p
-      )
-    );
+    const availableQuantity = originalQuantities[productId] - (cart.find(p => p.id === productId)?.quantity || 0);
+    if (availableQuantity > 0) {
+      setCart((prevCart) =>
+        prevCart.map((p) =>
+          p.id === productId ? { ...p, quantity: p.quantity + 1 } : p
+        )
+      );
+    }
   };
 
   const decrementQuantity = (productId) => {
-    const updatedCart = cart
-      .map((p) => {
-        if (p.id === productId && p.quantity > 1) {
-          return { ...p, quantity: p.quantity - 1 };
-        }
-        return p;
-      })
-      .filter((p) => p.quantity > 0);
-    setCart(updatedCart);
-    setProducts(
-      products.map((p) =>
-        p.id === productId ? { ...p, quantity: p.quantity + 1 } : p
-      )
-    );
+    const productInCart = cart.find((p) => p.id === productId);
+    if (productInCart && productInCart.quantity > 1) {
+      setCart((prevCart) =>
+        prevCart.map((p) =>
+          p.id === productId ? { ...p, quantity: p.quantity - 1 } : p
+        )
+      );
+    }
   };
 
   const removeFromCart = (product) => {
-    setCart(cart.filter((p) => p.id !== product.id));
-    setProducts(
-      products.map((p) =>
-        p.id === product.id
-          ? { ...p, quantity: p.quantity + product.quantity }
-          : p
-      )
-    );
+    setCart((prevCart) => prevCart.filter((p) => p.id !== product.id));
   };
 
   const clearCart = () => {
@@ -93,15 +75,28 @@ const App = () => {
     );
   };
 
-  const updateProducts = (cartItems) => {
-    const updatedProducts = products.map((product) => {
-      const cartItem = cartItems.find((item) => item.id === product.id);
-      if (cartItem) {
-        return { ...product, quantity: product.quantity - cartItem.quantity };
-      }
-      return product;
+  const checkout = () => {
+    cart.forEach((product) => {
+      const originalQuantity = originalQuantities[product.id];
+      const updatedQuantity = originalQuantity - product.quantity;
+
+      // Update the quantity in Firebase
+      const productRef = ref(database, `products/${product.id}`);
+      update(productRef, { quantity: updatedQuantity })
+        .then(() => {
+          console.log("Product quantity updated successfully.");
+          // Update the local state
+          updateProductQuantity(product.id, updatedQuantity);
+          // Update originalQuantities
+          setOriginalQuantities(prev => ({...prev, [product.id]: updatedQuantity}));
+        })
+        .catch((error) => {
+          console.error("Error updating product quantity:", error);
+        });
     });
-    setProducts(updatedProducts);
+    setCart([]);
+    setShowCartModal(false);
+    alert("Checkout successful!");
   };
 
   return (
@@ -117,7 +112,10 @@ const App = () => {
           </button>
         )}
       </div>
-      <ProductList products={products} addToCart={addToCart} />
+      <ProductList 
+        products={products.map(p => ({...p, quantity: originalQuantities[p.id] - (cart.find(cp => cp.id === p.id)?.quantity || 0)}))} 
+        addToCart={addToCart} 
+      />
       <CartModal
         show={showCartModal}
         handleClose={() => setShowCartModal(false)}
@@ -127,7 +125,7 @@ const App = () => {
         removeFromCart={removeFromCart}
         clearCart={clearCart}
         calculateTotal={calculateTotal}
-        updateProducts={updateProducts}
+        checkout={checkout}
       />
     </div>
   );
