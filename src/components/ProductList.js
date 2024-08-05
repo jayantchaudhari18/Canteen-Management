@@ -2,29 +2,45 @@ import React from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./ProductList.css";
 
-const ProductList = ({ products, addToCart }) => {
+const ProductList = ({ products, addToCart, onProductClick }) => {
   return (
-    <div className="row">
-      <h1 className="fw-bold">Products</h1>
+    <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 hover">
       {products.map((product) => (
-        <div key={product.id} className="col-md-4 mb-4">
-          <div className="card">
+        <div key={product.id} className="col">
+          <div className="card h-100 rounded-4 shadow-sm">
             <img
               src={product.image}
-              className="card-img-top product-image"
+              className="card-img-top rounded-top-4 product-image"
               alt={product.name}
             />
-            <div className="card-body">
-              <h4 className="card-title">{product.name}</h4>
-              <p className="card-text">Price: ₹{product.price}</p>
-              <p className="card-text">Quantity: {product.quantity}</p>
-              <button
-                className="btn btn-primary"
-                onClick={() => addToCart(product)}
-                disabled={product.quantity === 0}
-              >
-                Add to Cart
-              </button>
+            <div className="card-body d-flex flex-column">
+              <h5 className="card-title fw-bold">{product.name}</h5>
+              <p className="card-text">
+                <strong>Price:</strong> ₹{product.price}
+              </p>
+              <p className="card-text">
+                <strong>Quantity:</strong> {product.quantity}
+              </p>
+              <div className="mt-auto">
+                <div className="d-flex flex-row align-items-center gap-2">
+                  <button
+                    className="btn btn-outline-secondary rounded-3 w-100"
+                    onClick={() => onProductClick(product)}
+                  >
+                    View details
+                  </button>
+                  <button
+                    className="btn btn-primary rounded-3 w-100"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      addToCart(product);
+                    }}
+                    disabled={product.quantity === 0}
+                  >
+                    Add to Cart
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
