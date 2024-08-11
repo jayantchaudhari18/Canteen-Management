@@ -4,6 +4,7 @@ import "./App.css";
 import ProductList from "./components/ProductList";
 import CartModal from "./components/CartModal";
 import ProductDetailModal from "./components/ProductDetailModal";
+import Footer from "./components/Footer";
 import useProducts from "./hooks/useProducts";
 import { ref, update } from "firebase/database";
 import { database } from "./firebase";
@@ -115,23 +116,24 @@ const App = () => {
   };
 
   return (
-    <div className="container mt-5">
-      <div className="d-flex justify-content-between align-items-center mb-4 row">
-        <h1 className="fw-bold col">Canteen Management</h1>
-        <Form.Group className="w-50 my-auto col">
-          <InputGroup>
-            <InputGroup.Text>
-              <i className="fas fa-search"></i>
-            </InputGroup.Text>
-            <Form.Control
-              type="text"
-              placeholder="Search products..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </InputGroup>
-        </Form.Group>
-      </div>
+    <div className="d-flex flex-column min-vh-100">
+      <div className="container mt-5 flex-grow-1">
+        <div className="d-flex justify-content-between align-items-center mb-4 row">
+          <h1 className="fw-bold col">Canteen Management</h1>
+          <Form.Group className="w-50 my-auto col">
+            <InputGroup>
+              <InputGroup.Text>
+                <i className="fas fa-search"></i>
+              </InputGroup.Text>
+              <Form.Control
+                type="text"
+                placeholder="Search products..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </InputGroup>
+          </Form.Group>
+        </div>
         {cart.length > 0 && (
           <button
             className="btn btn-primary rounded-3"
@@ -141,46 +143,48 @@ const App = () => {
             View Cart ({cart.length})
           </button>
         )}
-      <ProductList
-        products={filteredProducts.map((p) => ({
-          ...p,
-          quantity:
-            originalQuantities[p.id] -
-            (cart.find((cp) => cp.id === p.id)?.quantity || 0),
-        }))}
-        addToCart={addToCart}
-        onProductClick={handleProductClick}
-      />
-      <CartModal
-        show={showCartModal}
-        handleClose={() => setShowCartModal(false)}
-        cart={cart}
-        incrementQuantity={incrementQuantity}
-        decrementQuantity={decrementQuantity}
-        removeFromCart={removeFromCart}
-        clearCart={clearCart}
-        calculateTotal={calculateTotal}
-        checkout={checkout}
-      />
-      <ProductDetailModal
-        show={showProductDetailModal}
-        handleClose={() => setShowProductDetailModal(false)}
-        product={selectedProduct}
-        addToCart={addToCart}
-      />
-      <Toast
-        show={showCheckoutToast}
-        onClose={() => setShowCheckoutToast(false)}
-        delay={3000}
-        autohide
-        className="position-fixed top-50 start-50 translate-middle m-4 rounded-4"
-        style={{ minWidth: "250px" }}
-      >
-        <Toast.Header closeButton={false}>
-          <strong className="me-auto">Checkout Successful</strong>
-        </Toast.Header>
-        <Toast.Body>Your order has been placed successfully!</Toast.Body>
-      </Toast>
+        <ProductList
+          products={filteredProducts.map((p) => ({
+            ...p,
+            quantity:
+              originalQuantities[p.id] -
+              (cart.find((cp) => cp.id === p.id)?.quantity || 0),
+          }))}
+          addToCart={addToCart}
+          onProductClick={handleProductClick}
+        />
+        <CartModal
+          show={showCartModal}
+          handleClose={() => setShowCartModal(false)}
+          cart={cart}
+          incrementQuantity={incrementQuantity}
+          decrementQuantity={decrementQuantity}
+          removeFromCart={removeFromCart}
+          clearCart={clearCart}
+          calculateTotal={calculateTotal}
+          checkout={checkout}
+        />
+        <ProductDetailModal
+          show={showProductDetailModal}
+          handleClose={() => setShowProductDetailModal(false)}
+          product={selectedProduct}
+          addToCart={addToCart}
+        />
+        <Toast
+          show={showCheckoutToast}
+          onClose={() => setShowCheckoutToast(false)}
+          delay={3000}
+          autohide
+          className="position-fixed top-50 start-50 translate-middle m-4 rounded-4"
+          style={{ minWidth: "250px" }}
+        >
+          <Toast.Header closeButton={false}>
+            <strong className="me-auto">Checkout Successful</strong>
+          </Toast.Header>
+          <Toast.Body>Your order has been placed successfully!</Toast.Body>
+        </Toast>
+      </div>
+      <Footer />
     </div>
   );
 };
