@@ -48,6 +48,7 @@ This Canteen Management System is a web-based application designed to streamline
   messagingSenderId: your_messaging_sender_id
   appd: your_app_id
   ```
+<img src="./Images/project-5.png">
 
 5. Start the development server: `npm start`
 

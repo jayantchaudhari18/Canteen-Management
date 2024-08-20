@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
-import ProductList from "./components/ProductList";
-import CartModal from "./components/CartModal";
-import ProductDetailModal from "./components/ProductDetailModal";
-import Footer from "./components/Footer";
+import ProductList from "./components/ProductList/ProductList";
+import CartModal from "./components/CartModal/CartModal";
+import ProductDetailModal from "./components/ProductDetail/ProductDetailModal";
+import Footer from "./components/Footer/Footer";
 import useProducts from "./hooks/useProducts";
 import { ref, update } from "firebase/database";
 import { database } from "./firebase";
