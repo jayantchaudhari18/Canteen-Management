@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from "react";
+import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
 import ProductList from "./components/ProductList/ProductList";
 import CartModal from "./components/CartModal/CartModal";
 import ProductDetailModal from "./components/ProductDetail/ProductDetailModal";
 import Footer from "./components/Footer/Footer";
+import AdminPanel from "./components/AdminPanel/AdminPanel";
 import useProducts from "./hooks/useProducts";
 import { ref, update } from "firebase/database";
 import { database } from "./firebase";
-import { Toast, Form, InputGroup } from "react-bootstrap";
+import { Toast, Form, InputGroup, Navbar, Nav, Container } from "react-bootstrap";
 
 const App = () => {
   const { products, updateProductQuantity } = useProducts();
@@ -100,6 +102,19 @@ const App = () => {
           console.error("Error updating product quantity:", error);
         });
     });
+
+    // Record sales data
+    const checkoutDate = new Date().toISOString().split('T')[0];
+    const saleRef = ref(database, `sales/${checkoutDate}`);
+    const saleId = Date.now().toString();
+    const saleData = {
+      [saleId]: {
+        total: calculateTotal(),
+        items: cart.map(item => ({ id: item.id, quantity: item.quantity, price: item.price }))
+      }
+    };
+    update(saleRef, saleData);
+
     setCart([]);
     setShowCartModal(false);
     setShowCheckoutToast(true);
@@ -115,77 +130,100 @@ const App = () => {
     setShowProductDetailModal(true);
   };
 
-  return (
-    <div className="d-flex flex-column min-vh-100">
-      <div className="container mt-5 flex-grow-1">
-        <div className="d-flex justify-content-between align-items-center mb-4 row">
-          <h1 className="fw-bold col">Canteen Management</h1>
-          <Form.Group className="w-50 my-auto col">
-            <InputGroup>
-              <InputGroup.Text>
-                <i className="fas fa-search"></i>
-              </InputGroup.Text>
-              <Form.Control
-                type="text"
-                placeholder="Search products..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </InputGroup>
-          </Form.Group>
-        </div>
-        {cart.length > 0 && (
-          <button
-            className="btn btn-primary rounded-3"
-            onClick={() => setShowCartModal(true)}
-          >
-            <i className="fas fa-shopping-cart me-2"></i>
-            View Cart ({cart.length})
-          </button>
-        )}
-        <ProductList
-          products={filteredProducts.map((p) => ({
-            ...p,
-            quantity:
-              originalQuantities[p.id] -
-              (cart.find((cp) => cp.id === p.id)?.quantity || 0),
-          }))}
-          addToCart={addToCart}
-          onProductClick={handleProductClick}
-        />
-        <CartModal
-          show={showCartModal}
-          handleClose={() => setShowCartModal(false)}
-          cart={cart}
-          incrementQuantity={incrementQuantity}
-          decrementQuantity={decrementQuantity}
-          removeFromCart={removeFromCart}
-          clearCart={clearCart}
-          calculateTotal={calculateTotal}
-          checkout={checkout}
-        />
-        <ProductDetailModal
-          show={showProductDetailModal}
-          handleClose={() => setShowProductDetailModal(false)}
-          product={selectedProduct}
-          addToCart={addToCart}
-        />
-        <Toast
-          show={showCheckoutToast}
-          onClose={() => setShowCheckoutToast(false)}
-          delay={3000}
-          autohide
-          className="position-fixed top-50 start-50 translate-middle m-4 rounded-4"
-          style={{ minWidth: "250px" }}
-        >
-          <Toast.Header closeButton={false}>
-            <strong className="me-auto">Checkout Successful</strong>
-          </Toast.Header>
-          <Toast.Body>Your order has been placed successfully!</Toast.Body>
-        </Toast>
+  const HomePage = () => (
+    <Container className="mt-5 flex-grow-1">
+      <div className="d-flex justify-content-between align-items-center mb-4 row">
+        <h1 className="fw-bold col">Canteen Management</h1>
+        <Form.Group className="w-50 my-auto col">
+          <InputGroup>
+            <InputGroup.Text>
+              <i className="fas fa-search"></i>
+            </InputGroup.Text>
+            <Form.Control
+              type="text"
+              placeholder="Search products..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </InputGroup>
+        </Form.Group>
       </div>
-      <Footer />
-    </div>
+      {cart.length > 0 && (
+        <button
+          className="btn btn-primary rounded-3"
+          onClick={() => setShowCartModal(true)}
+        >
+          <i className="fas fa-shopping-cart me-2"></i>
+          View Cart ({cart.length})
+        </button>
+      )}
+      <ProductList
+        products={filteredProducts.map((p) => ({
+          ...p,
+          quantity:
+            originalQuantities[p.id] -
+            (cart.find((cp) => cp.id === p.id)?.quantity || 0),
+        }))}
+        addToCart={addToCart}
+        onProductClick={handleProductClick}
+      />
+      <CartModal
+        show={showCartModal}
+        handleClose={() => setShowCartModal(false)}
+        cart={cart}
+        incrementQuantity={incrementQuantity}
+        decrementQuantity={decrementQuantity}
+        removeFromCart={removeFromCart}
+        clearCart={clearCart}
+        calculateTotal={calculateTotal}
+        checkout={checkout}
+      />
+      <ProductDetailModal
+        show={showProductDetailModal}
+        handleClose={() => setShowProductDetailModal(false)}
+        product={selectedProduct}
+        addToCart={addToCart}
+      />
+      <Toast
+        show={showCheckoutToast}
+        onClose={() => setShowCheckoutToast(false)}
+        delay={3000}
+        autohide
+        className="position-fixed top-50 start-50 translate-middle m-4 rounded-4"
+        style={{ minWidth: "250px" }}
+      >
+        <Toast.Header closeButton={false}>
+          <strong className="me-auto">Checkout Successful</strong>
+        </Toast.Header>
+        <Toast.Body>Your order has been placed successfully!</Toast.Body>
+      </Toast>
+    </Container>
+  );
+
+  return (
+    <Router>
+      <div className="d-flex flex-column min-vh-100">
+        <Navbar bg="light" expand="lg">
+          <Container>
+            <Navbar.Brand as={Link} to="/">Canteen Management</Navbar.Brand>
+            <Navbar.Toggle aria-controls="basic-navbar-nav" />
+            <Navbar.Collapse id="basic-navbar-nav">
+              <Nav className="me-auto">
+                <Nav.Link as={Link} to="/">Home</Nav.Link>
+                <Nav.Link as={Link} to="/admin">Admin</Nav.Link>
+              </Nav>
+            </Navbar.Collapse>
+          </Container>
+        </Navbar>
+
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/admin" element={<AdminPanel />} />
+        </Routes>
+        
+        <Footer />
+      </div>
+    </Router>
   );
 };
 
