@@ -203,9 +203,9 @@ const App = () => {
   return (
     <Router>
       <div className="d-flex flex-column min-vh-100">
-        <Navbar bg="light" expand="lg">
+        <Navbar expand="lg">
           <Container>
-            <Navbar.Brand as={Link} to="/">Canteen Management</Navbar.Brand>
+            <Navbar.Brand className="fw-bold" as={Link} to="/">Canteen Management</Navbar.Brand>
             <Navbar.Toggle aria-controls="basic-navbar-nav" />
             <Navbar.Collapse id="basic-navbar-nav">
               <Nav className="me-auto">
