@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { database } from "../../firebase"; // Import Firebase
-import { ref, onValue, update, push } from "firebase/database"; // Import necessary Firebase methods
+import { database } from "../../firebase";
+import { ref, onValue, update, push } from "firebase/database";
 import {
   Card,
   Container,
@@ -29,19 +29,26 @@ const AdminPanel = () => {
     bestSellers: [],
   });
   const [initialPrices, setInitialPrices] = useState({});
-  const [products, setProducts] = useState({}); // To store product data
-
+  const [products, setProducts] = useState({});
   const [productName, setProductName] = useState("");
   const [productPrice, setProductPrice] = useState("");
   const [productDescription, setProductDescription] = useState("");
   const [productImage, setProductImage] = useState("");
+  const [selectedProduct, setSelectedProduct] = useState("");
+  const [quantityChange, setQuantityChange] = useState("");
 
-  const [selectedProduct, setSelectedProduct] = useState(""); // For updating quantity
-  const [quantityChange, setQuantityChange] = useState(""); // Amount to increase/decrease
-
-  // Memoized processData function to prevent re-creation on each render
   const processData = useCallback(
     (data) => {
+      // If data is null or undefined, return empty state
+      if (!data) {
+        return {
+          weekly: [],
+          monthly: [],
+          yearly: [],
+          bestSellers: [],
+        };
+      }
+
       const now = new Date();
       const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
       const oneMonthAgo = new Date(
@@ -55,16 +62,26 @@ const AdminPanel = () => {
         now.getDate()
       );
 
-      const bestSellers = {}; // Track quantities of each product
-
+      const bestSellers = {};
       const weekly = {};
       const monthly = {};
       const yearly = {};
 
       Object.entries(data).forEach(([date, dailySales]) => {
+        // Skip if dailySales is null or undefined
+        if (!dailySales) return;
+
         const saleDate = new Date(date);
+
+        // Ensure dailySales is treated as an object
         Object.values(dailySales).forEach((sale) => {
+          // Skip if sale or items is null/undefined
+          if (!sale || !sale.items || !Array.isArray(sale.items)) return;
+
           sale.items.forEach((item) => {
+            // Skip if item is invalid
+            if (!item || !item.id || !item.quantity || !item.price) return;
+
             // Track the number of items sold for best sellers
             bestSellers[item.id] = (bestSellers[item.id] || 0) + item.quantity;
 
@@ -89,97 +106,132 @@ const AdminPanel = () => {
       // Sort best sellers by quantity sold
       const sortedBestSellers = Object.entries(bestSellers)
         .sort((a, b) => b[1] - a[1])
-        .slice(0, 5); // Show top 5 best-selling products
+        .slice(0, 5);
+
+      // Safe conversion to the required format
+      const convertToChartFormat = (data) =>
+        Object.entries(data)
+          .map(([id, value]) => ({
+            name: products[id]?.name || "Unknown Product",
+            value: value || 0,
+          }))
+          .filter((item) => item.name !== "Unknown Product");
 
       return {
-        weekly: Object.entries(weekly).map(([id, value]) => ({
-          name: products[id]?.name, // Safely access the product name
-          value,
-        })),
-        monthly: Object.entries(monthly).map(([id, value]) => ({
-          name: products[id]?.name,
-          value,
-        })),
-        yearly: Object.entries(yearly).map(([id, value]) => ({
-          name: products[id]?.name,
-          value,
-        })),
+        weekly: convertToChartFormat(weekly),
+        monthly: convertToChartFormat(monthly),
+        yearly: convertToChartFormat(yearly),
         bestSellers: sortedBestSellers.map(([id, quantity]) => ({
           id,
-          name: products[id]?.name,
+          name: products[id]?.name || "Unknown Product",
           quantity,
         })),
       };
     },
     [initialPrices, products]
-  ); // Dependencies: initialPrices and products
+  );
 
   useEffect(() => {
     const salesRef = ref(database, "sales");
     const productsRef = ref(database, "products");
 
     // Fetch initial prices and product data
-    onValue(productsRef, (snapshot) => {
-      const data = snapshot.val();
-      if (data) {
-        const prices = Object.entries(data).reduce((acc, [id, product]) => {
-          acc[id] = product.initialPrice;
-          return acc;
-        }, {});
-        setInitialPrices(prices);
-        setProducts(data); // Save the product data for best sellers
+    const productsUnsubscribe = onValue(
+      productsRef,
+      (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          const prices = Object.entries(data).reduce((acc, [id, product]) => {
+            acc[id] = product.initialPrice || 0;
+            return acc;
+          }, {});
+          setInitialPrices(prices);
+          setProducts(data);
+        }
+      },
+      (error) => {
+        console.error("Error fetching products:", error);
       }
-    });
+    );
 
     // Fetch sales data
-    onValue(salesRef, (snapshot) => {
-      const data = snapshot.val();
-      if (data) {
+    const salesUnsubscribe = onValue(
+      salesRef,
+      (snapshot) => {
+        const data = snapshot.val();
         const processedData = processData(data);
         setSalesData(processedData);
+      },
+      (error) => {
+        console.error("Error fetching sales:", error);
       }
-    });
+    );
+
+    // Cleanup subscriptions
+    return () => {
+      productsUnsubscribe();
+      salesUnsubscribe();
+    };
   }, [processData]);
 
   // Function to add product to Firebase
-  const handleAddProduct = (e) => {
+  const handleAddProduct = async (e) => {
     e.preventDefault();
+    try {
+      const newProduct = {
+        name: productName,
+        price: parseFloat(productPrice),
+        description: productDescription,
+        image: productImage,
+        quantity: 0,
+        initialPrice: parseFloat(productPrice),
+      };
 
-    const newProduct = {
-      name: productName,
-      price: parseFloat(productPrice),
-      description: productDescription,
-      image: productImage,
-      quantity: 0, // New product starts with 0 quantity
-      initialPrice: parseFloat(productPrice), // Assume price is the initial cost
-    };
+      const productsRef = ref(database, "products");
+      await push(productsRef, newProduct);
 
-    const productsRef = ref(database, "products");
-    push(productsRef, newProduct); // Push the new product to the Firebase Realtime Database
+      // Reset the form
+      setProductName("");
+      setProductPrice("");
+      setProductDescription("");
+      setProductImage("");
 
-    // Reset the form
-    setProductName("");
-    setProductPrice("");
-    setProductDescription("");
-    setProductImage("");
+      alert("Product added successfully!");
+    } catch (error) {
+      console.error("Error adding product:", error);
+      alert("Failed to add product. Please try again.");
+    }
   };
 
   // Function to update the quantity of an existing product
-  const handleUpdateQuantity = (e) => {
+  const handleUpdateQuantity = async (e) => {
     e.preventDefault();
     if (!selectedProduct || !quantityChange) return;
 
-    const productRef = ref(database, `products/${selectedProduct}`);
-    const currentQuantity = products[selectedProduct]?.quantity || 0;
+    try {
+      const productRef = ref(database, `products/${selectedProduct}`);
+      const currentQuantity = products[selectedProduct]?.quantity || 0;
+      const newQuantity = currentQuantity + parseInt(quantityChange);
 
-    // Update product's quantity in Firebase
-    update(productRef, {
-      quantity: currentQuantity + parseInt(quantityChange),
-    });
+      if (newQuantity < 0) {
+        alert("Quantity cannot be negative!");
+        return;
+      }
 
-    // Reset the form
-    setSelectedProduct("");
-    setQuantityChange("");
+      // Update product's quantity in Firebase
+      await update(productRef, {
+        quantity: newQuantity,
+      });
+
+      // Reset the form
+      setSelectedProduct("");
+      setQuantityChange("");
+
+      alert("Quantity updated successfully!");
+    } catch (error) {
+      console.error("Error updating quantity:", error);
+      alert("Failed to update quantity. Please try again.");
+    }
   };
 
   const renderPieChart = (data, title) => (
@@ -204,7 +256,7 @@ const AdminPanel = () => {
                 />
               ))}
             </Pie>
-            <Tooltip />
+            <Tooltip formatter={(value) => `₹${value.toFixed(2)}`} />
             <Legend />
           </PieChart>
         </ResponsiveContainer>
@@ -236,7 +288,7 @@ const AdminPanel = () => {
                     <td>{((item.value / totalProfit) * 100).toFixed(2)}%</td>
                   </tr>
                 ))}
-                <tr>
+                <tr className="table-info">
                   <td>
                     <strong>Total</strong>
                   </td>
@@ -298,6 +350,8 @@ const AdminPanel = () => {
             <Form.Label>Product Price (₹)</Form.Label>
             <Form.Control
               type="number"
+              step="0.01"
+              min="0"
               placeholder="Enter product price"
               value={productPrice}
               onChange={(e) => setProductPrice(e.target.value)}
@@ -308,6 +362,7 @@ const AdminPanel = () => {
             <Form.Label>Product Description</Form.Label>
             <Form.Control
               as="textarea"
+              rows={3}
               placeholder="Enter product description"
               value={productDescription}
               onChange={(e) => setProductDescription(e.target.value)}
@@ -348,7 +403,7 @@ const AdminPanel = () => {
               <option value="">Select a product...</option>
               {Object.entries(products).map(([id, product]) => (
                 <option key={id} value={id}>
-                  {product.name}
+                  {product.name} (Current Quantity: {product.quantity || 0})
                 </option>
               ))}
             </Form.Control>
@@ -357,7 +412,7 @@ const AdminPanel = () => {
             <Form.Label>Quantity Change (Increase/Decrease)</Form.Label>
             <Form.Control
               type="number"
-              placeholder="Enter quantity to add or remove"
+              placeholder="Enter quantity to add (positive) or remove (negative)"
               value={quantityChange}
               onChange={(e) => setQuantityChange(e.target.value)}
               required
@@ -392,10 +447,12 @@ const AdminPanel = () => {
         <Col xs={12}>{renderBestSellers(salesData.bestSellers)}</Col>
       </Row>
       <Row>
-        <Col xs={12}>{renderAddProductForm()}</Col>
-      </Row>
-      <Row>
-        <Col xs={12}>{renderUpdateQuantityForm()}</Col>
+        <Col xs={12} md={6}>
+          {renderAddProductForm()}
+        </Col>
+        <Col xs={12} md={6}>
+          {renderUpdateQuantityForm()}
+        </Col>
       </Row>
     </Container>
   );

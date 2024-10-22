@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
 import ProductList from "./components/ProductList/ProductList";
@@ -10,7 +10,14 @@ import AdminPanel from "./components/AdminPanel/AdminPanel";
 import useProducts from "./hooks/useProducts";
 import { ref, update } from "firebase/database";
 import { database } from "./firebase";
-import { Toast, Form, InputGroup, Navbar, Nav, Container } from "react-bootstrap";
+import {
+  Toast,
+  Form,
+  InputGroup,
+  Navbar,
+  Nav,
+  Container,
+} from "react-bootstrap";
 
 const App = () => {
   const { products, updateProductQuantity } = useProducts();
@@ -104,14 +111,18 @@ const App = () => {
     });
 
     // Record sales data
-    const checkoutDate = new Date().toISOString().split('T')[0];
+    const checkoutDate = new Date().toISOString().split("T")[0];
     const saleRef = ref(database, `sales/${checkoutDate}`);
     const saleId = Date.now().toString();
     const saleData = {
       [saleId]: {
         total: calculateTotal(),
-        items: cart.map(item => ({ id: item.id, quantity: item.quantity, price: item.price }))
-      }
+        items: cart.map((item) => ({
+          id: item.id,
+          quantity: item.quantity,
+          price: item.price,
+        })),
+      },
     };
     update(saleRef, saleData);
 
@@ -201,16 +212,22 @@ const App = () => {
   );
 
   return (
-    <Router>
+    <Router basename="/Canteen-Management">
       <div className="d-flex flex-column min-vh-100">
         <Navbar expand="lg">
           <Container>
-            <Navbar.Brand className="fw-bold" as={Link} to="/">Canteen Management</Navbar.Brand>
+            <Navbar.Brand className="fw-bold" as={Link} to="/">
+              Canteen Management
+            </Navbar.Brand>
             <Navbar.Toggle aria-controls="basic-navbar-nav" />
             <Navbar.Collapse id="basic-navbar-nav">
               <Nav className="me-auto">
-                <Nav.Link as={Link} to="/">Home</Nav.Link>
-                <Nav.Link as={Link} to="/admin">Admin</Nav.Link>
+                <Nav.Link as={Link} to="/">
+                  Home
+                </Nav.Link>
+                <Nav.Link as={Link} to="/admin">
+                  Admin
+                </Nav.Link>
               </Nav>
             </Navbar.Collapse>
           </Container>
@@ -220,7 +237,7 @@ const App = () => {
           <Route path="/" element={<HomePage />} />
           <Route path="/admin" element={<AdminPanel />} />
         </Routes>
-        
+
         <Footer />
       </div>
     </Router>
