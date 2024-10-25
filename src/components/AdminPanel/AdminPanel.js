@@ -17,6 +17,7 @@ const AdminPanel = () => {
   });
   const [initialPrices, setInitialPrices] = useState({});
   const [products, setProducts] = useState({});
+  const [rawSalesData, setRawSalesData] = useState(null);
 
   // Memoize the date calculations
   const dateRanges = useMemo(() => {
@@ -49,17 +50,11 @@ const AdminPanel = () => {
     [products]
   );
 
-  // Process sales data - memoized
+  // Process sales data
   const processData = useCallback(
     (data) => {
-      if (!data) {
-        return {
-          weekly: [],
-          monthly: [],
-          yearly: [],
-          bestSellers: [],
-        };
-      }
+      if (!data)
+        return { weekly: [], monthly: [], yearly: [], bestSellers: [] };
 
       const bestSellers = {};
       const weekly = {};
@@ -111,14 +106,13 @@ const AdminPanel = () => {
         })),
       };
     },
-    [initialPrices, products, dateRanges, convertToChartFormat]
+    [dateRanges, initialPrices, products, convertToChartFormat]
   );
 
+  // Effect for products data
   useEffect(() => {
-    const salesRef = ref(database, "sales");
     const productsRef = ref(database, "products");
 
-    // Fetch initial prices and product data
     const productsUnsubscribe = onValue(productsRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
@@ -131,21 +125,32 @@ const AdminPanel = () => {
       }
     });
 
-    // Fetch sales data
+    return () => productsUnsubscribe();
+  }, []);
+
+  // Effect for sales data
+  useEffect(() => {
+    const salesRef = ref(database, "sales");
+
     const salesUnsubscribe = onValue(salesRef, (snapshot) => {
       const data = snapshot.val();
-      setSalesData(processData(data));
+      setRawSalesData(data);
     });
 
-    return () => {
-      productsUnsubscribe();
-      salesUnsubscribe();
-    };
-  }, [processData]);
+    return () => salesUnsubscribe();
+  }, []);
+
+  // Effect to process sales data when dependencies change
+  useEffect(() => {
+    if (rawSalesData && Object.keys(products).length > 0) {
+      const processedData = processData(rawSalesData);
+      setSalesData(processedData);
+    }
+  }, [rawSalesData, products, processData]);
 
   return (
     <Container fluid>
-      <h1 className="my-4">Admin Panel</h1>
+      <h1 className="my-4 fw-bold">Admin Panel</h1>
       <Row>
         <Col xs={12} md={6} lg={4}>
           <ChartComponent

@@ -193,11 +193,11 @@ const Home = () => {
         </h1>
 
         <div className="d-flex justify-content-center">
-          <button onClick={handleHomeClick} className="btn btn-link text-decoration-none">
+          <button onClick={handleHomeClick} className="btn btn-link text-decoration-none text-dark">
             Home
           </button>
           {currentUser && (
-            <button onClick={handleAdminClick} className="btn btn-link text-decoration-none">
+            <button onClick={handleAdminClick} className="btn btn-link text-decoration-none text-dark">
               Admin
             </button>
           )}
@@ -205,9 +205,9 @@ const Home = () => {
             <NavDropdown
               title={`Hello, ${currentUser.displayName || currentUser.email}`}
               id="user-nav-dropdown"
-              className="mt-2"
+              className="mt-2 fw-bold"
             >
-              <NavDropdown.Item onClick={handleLogout} className="btn btn-danger">Logout</NavDropdown.Item>
+              <NavDropdown.Item onClick={handleLogout} >Logout</NavDropdown.Item>
             </NavDropdown>
           )}
         </div>

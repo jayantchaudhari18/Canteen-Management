@@ -8,6 +8,9 @@ This Canteen Management System is a web-based application designed to streamline
 
 **[Live Demo](https://sauravrwt.github.io/Canteen-Management/)**
 
+<img src="./Images/project-5.png" width="50%"><img src="./Images/project-6.png" width="50%">
+<img src="./Images/project-7.png" width="50%">
+
 ## Features
 
 - **Product Catalog**: Browse through a list of available food items with details such as name, price, and quantity.
@@ -24,6 +27,7 @@ This Canteen Management System is a web-based application designed to streamline
 - Firebase (Realtime Database)
 - Bootstrap 5
 - React Bootstrap
+- Recharts
 
 ## Installation and Setup
 
@@ -48,7 +52,7 @@ This Canteen Management System is a web-based application designed to streamline
   messagingSenderId: your_messaging_sender_id
   appd: your_app_id
   ```
-<img src="./Images/project-5.png">
+<img src="./Images/firebase-1.png"><img src="./Images/firebase-2.png">
 
 5. Start the development server: `npm start`
 
