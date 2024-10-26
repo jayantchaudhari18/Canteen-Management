@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/Canteen-Management/static/css/main.bd2f34d2.css",
-    "main.js": "/Canteen-Management/static/js/main.ee061d2e.js",
+    "main.js": "/Canteen-Management/static/js/main.c74ac082.js",
     "static/js/453.db920184.chunk.js": "/Canteen-Management/static/js/453.db920184.chunk.js",
     "index.html": "/Canteen-Management/index.html",
     "main.bd2f34d2.css.map": "/Canteen-Management/static/css/main.bd2f34d2.css.map",
-    "main.ee061d2e.js.map": "/Canteen-Management/static/js/main.ee061d2e.js.map",
+    "main.c74ac082.js.map": "/Canteen-Management/static/js/main.c74ac082.js.map",
     "453.db920184.chunk.js.map": "/Canteen-Management/static/js/453.db920184.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.bd2f34d2.css",
-    "static/js/main.ee061d2e.js"
+    "static/js/main.c74ac082.js"
   ]
 }
