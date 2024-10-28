@@ -6,6 +6,7 @@ import CartModal from "../CartModal/CartModal";
 import ProductDetailModal from "../ProductDetail/ProductDetailModal";
 import Footer from "../Footer/Footer";
 import AdminPanel from "../AdminPanel/AdminPanel";
+import UserOrderHistory from "./UserOrderHistory";
 import useProducts from "../../hooks/useProducts";
 import { ref, update } from "firebase/database";
 import { auth, database } from "../../firebase";
@@ -33,6 +34,7 @@ const Home = () => {
   const [showProductDetailModal, setShowProductDetailModal] = useState(false);
   const [showAdmin, setShowAdmin] = useState(false);
   const [logoutError, setLogoutError] = useState("");
+  const [showOrderHistory, setShowOrderHistory] = useState(false);
 
   useEffect(() => {
     if (products && products.length > 0) {
@@ -156,6 +158,7 @@ const Home = () => {
           price: item.price,
         })),
         userId: currentUser?.uid,
+        userEmail: currentUser?.email,
         timestamp: Date.now(),
       },
     };
@@ -215,6 +218,15 @@ const Home = () => {
           >
             Home
           </button>
+          <button
+          onClick={() => {
+            setShowOrderHistory(true);
+            setShowAdmin(false);
+          }}
+          className="btn btn-link text-decoration-none text-dark"
+        >
+          My Orders
+        </button>
           {currentUser && (
             <button
               onClick={handleAdminClick}
@@ -250,6 +262,8 @@ const Home = () => {
 
         {showAdmin ? (
           <AdminPanel />
+        ) : showOrderHistory ? (
+          <UserOrderHistory />
         ) : (
           <>
             <div className="d-flex justify-content-between align-items-center mb-4 row">

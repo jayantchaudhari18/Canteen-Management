@@ -1,18 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import { Card, Table, Form } from 'react-bootstrap';
-import { database } from '../../firebase';
-import { ref, onValue } from 'firebase/database';
+import React, { useState, useEffect, useCallback } from "react";
+import { Card, Table, Form } from "react-bootstrap";
+import { database } from "../../firebase";
+import { ref, onValue } from "firebase/database";
 
 const OrderHistory = () => {
   const [orders, setOrders] = useState([]);
   const [products, setProducts] = useState({});
-  const [searchTerm, setSearchTerm] = useState('');
-  const [sortConfig, setSortConfig] = useState({ key: 'date', direction: 'desc' });
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortConfig, setSortConfig] = useState({
+    key: "date",
+    direction: "desc",
+  });
 
   // Fetch products data
   useEffect(() => {
-    const productsRef = ref(database, 'products');
-    
+    const productsRef = ref(database, "products");
+
     const unsubscribe = onValue(productsRef, (snapshot) => {
       const productsData = snapshot.val();
       setProducts(productsData || {});
@@ -21,10 +24,44 @@ const OrderHistory = () => {
     return () => unsubscribe();
   }, []);
 
+  // Memoize processOrders function with useCallback
+  const processOrders = useCallback(
+    (salesData) => {
+      if (!salesData) return [];
+
+      return Object.entries(salesData)
+        .map(([date, dailySales]) => {
+          return Object.entries(dailySales).map(([orderId, sale]) => {
+            return {
+              id: orderId,
+              date: new Date(date),
+              userEmail: sale.userEmail || "N/A",
+              items:
+                sale.items?.map((item) => ({
+                  ...item,
+                  name: products[item.id]?.name || `Product ${item.id}`,
+                  price: item.price || products[item.id]?.price || 0,
+                })) || [],
+              total:
+                sale.total ||
+                sale.items?.reduce(
+                  (sum, item) => sum + item.price * item.quantity,
+                  0
+                ) ||
+                0,
+              status: sale.status || "Completed",
+            };
+          });
+        })
+        .flat();
+    },
+    [products]
+  );
+
   // Fetch and process sales data
   useEffect(() => {
-    const salesRef = ref(database, 'sales');
-    
+    const salesRef = ref(database, "sales");
+
     const unsubscribe = onValue(salesRef, (snapshot) => {
       const salesData = snapshot.val();
       const processedOrders = processOrders(salesData);
@@ -32,38 +69,18 @@ const OrderHistory = () => {
     });
 
     return () => unsubscribe();
-  }, [products]);
-
-  // Process raw sales data into a more usable format
-  const processOrders = (salesData) => {
-    if (!salesData) return [];
-    
-    return Object.entries(salesData).map(([date, dailySales]) => {
-      return Object.entries(dailySales).map(([orderId, sale]) => ({
-        id: orderId,
-        date: new Date(date),
-        customerName: sale.customerName || 'N/A',
-        items: sale.items?.map(item => ({
-          ...item,
-          name: products[item.id]?.name || `Product ${item.id}`, // Get product name from products object
-          price: item.price || products[item.id]?.price || 0
-        })) || [],
-        total: sale.items?.reduce((sum, item) => sum + (item.price * item.quantity), 0) || 0,
-        status: sale.status || 'Completed'
-      }));
-    }).flat();
-  };
+  }, [processOrders]);
 
   // Sort orders based on current sort configuration
   const sortOrders = (ordersToSort) => {
     return [...ordersToSort].sort((a, b) => {
-      if (sortConfig.key === 'date') {
-        return sortConfig.direction === 'asc' 
-          ? a.date - b.date 
+      if (sortConfig.key === "date") {
+        return sortConfig.direction === "asc"
+          ? a.date - b.date
           : b.date - a.date;
       }
-      if (sortConfig.key === 'total') {
-        return sortConfig.direction === 'asc'
+      if (sortConfig.key === "total") {
+        return sortConfig.direction === "asc"
           ? a.total - b.total
           : b.total - a.total;
       }
@@ -73,10 +90,8 @@ const OrderHistory = () => {
 
   // Filter orders based on search term
   const filterOrders = (ordersToFilter) => {
-    return ordersToFilter.filter(order => 
-      order.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.items.some(item => 
+    return ordersToFilter.filter((order) =>
+      order.items.some((item) =>
         item.name.toLowerCase().includes(searchTerm.toLowerCase())
       )
     );
@@ -84,20 +99,24 @@ const OrderHistory = () => {
 
   // Handle column header click for sorting
   const handleSort = (key) => {
-    setSortConfig(prevConfig => ({
+    setSortConfig((prevConfig) => ({
       key,
-      direction: prevConfig.key === key && prevConfig.direction === 'asc' ? 'desc' : 'asc'
+      direction:
+        prevConfig.key === key && prevConfig.direction === "asc"
+          ? "desc"
+          : "asc",
     }));
   };
 
   // Format date to local string
   const formatDate = (date) => {
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
     });
   };
 
@@ -107,11 +126,11 @@ const OrderHistory = () => {
         <Card.Title>Order History</Card.Title>
         <Form.Control
           type="text"
-          placeholder="Search by customer name, order ID, or product..."
+          placeholder="Search by product name..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="mt-2"
-          style={{ maxWidth: '300px' }}
+          style={{ maxWidth: "300px" }}
         />
       </Card.Header>
       <Card.Body>
@@ -119,20 +138,24 @@ const OrderHistory = () => {
           <Table striped bordered hover>
             <thead>
               <tr>
-                <th 
-                  style={{ cursor: 'pointer' }}
-                  onClick={() => handleSort('date')}
+                <th
+                  style={{ cursor: "pointer" }}
+                  onClick={() => handleSort("date")}
                 >
-                  Date {sortConfig.key === 'date' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                  Date{" "}
+                  {sortConfig.key === "date" &&
+                    (sortConfig.direction === "asc" ? "↑" : "↓")}
                 </th>
                 <th>Order ID</th>
-                <th>Customer</th>
+                <th>User Email</th>
                 <th>Items</th>
-                <th 
-                  style={{ cursor: 'pointer' }}
-                  onClick={() => handleSort('total')}
+                <th
+                  style={{ cursor: "pointer" }}
+                  onClick={() => handleSort("total")}
                 >
-                  Total {sortConfig.key === 'total' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                  Total{" "}
+                  {sortConfig.key === "total" &&
+                    (sortConfig.direction === "asc" ? "↑" : "↓")}
                 </th>
                 <th>Status</th>
               </tr>
@@ -140,14 +163,16 @@ const OrderHistory = () => {
             <tbody>
               {orders.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="text-center">No orders found</td>
+                  <td colSpan={6} className="text-center">
+                    No orders found
+                  </td>
                 </tr>
               ) : (
                 filterOrders(sortOrders(orders)).map((order) => (
                   <tr key={order.id}>
                     <td>{formatDate(order.date)}</td>
                     <td>{order.id}</td>
-                    <td>{order.customerName}</td>
+                    <td>{order.userEmail}</td>
                     <td>
                       {order.items.map((item, index) => (
                         <div key={index}>
