@@ -4,6 +4,7 @@ import { ref, push } from "firebase/database";
 import { database } from "../../firebase";
 
 const AddProductForm = () => {
+  const [initialPrices, setInitialPrices] = useState("");
   const [productName, setProductName] = useState("");
   const [productPrice, setProductPrice] = useState("");
   const [productDescription, setProductDescription] = useState("");
@@ -14,11 +15,11 @@ const AddProductForm = () => {
     try {
       const newProduct = {
         name: productName,
+        initialPrices: parseFloat(initialPrices),
         price: parseFloat(productPrice),
         description: productDescription,
         image: productImage,
         quantity: 0,
-        initialPrice: parseFloat(productPrice),
       };
 
       const productsRef = ref(database, "products");
@@ -26,6 +27,7 @@ const AddProductForm = () => {
 
       // Reset the form
       setProductName("");
+      setInitialPrices("");
       setProductPrice("");
       setProductDescription("");
       setProductImage("");
@@ -53,10 +55,22 @@ const AddProductForm = () => {
             />
           </Form.Group>
           <Form.Group controlId="productPrice" className="mt-3">
+            <Form.Label>Initial Product Price (₹)</Form.Label>
+            <Form.Control
+              type="number"
+              step="0.1"
+              min="0"
+              placeholder="Enter initial product price"
+              value={initialPrices}
+              onChange={(e) => setInitialPrices(e.target.value)}
+              required
+            />
+          </Form.Group>
+          <Form.Group controlId="productPrice" className="mt-3">
             <Form.Label>Product Price (₹)</Form.Label>
             <Form.Control
               type="number"
-              step="0.01"
+              step="0.1"
               min="0"
               placeholder="Enter product price"
               value={productPrice}

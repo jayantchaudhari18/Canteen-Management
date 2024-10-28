@@ -18,6 +18,7 @@ import {
   NavDropdown,
 } from "react-bootstrap";
 import { useAuth } from "../../AuthContext";
+import jsPDF from "jspdf";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -56,6 +57,20 @@ const Home = () => {
       navigate("/login");
     }
   }, [currentUser, navigate]);
+
+  const generatePDF = () => {
+    const doc = new jsPDF();
+    doc.text("Canteen", 10, 10);
+    doc.text("Items Purchased", 10, 20);
+    cart.forEach((product, index) => {
+      const itemText = `${index + 1}.${product.name} - ${product.quantity} x ${
+        product.price
+      } = ${product.quantity * product.price}`;
+      doc.text(itemText, 10, 30 + index * 10);
+    });
+    doc.text(`Total: ${calculateTotal()}`, 10, 40 + cart.length * 10);
+    doc.save("Canteen-Bill.pdf");
+  };
 
   const addToCart = (product) => {
     setCart((prevCart) => {
@@ -117,16 +132,15 @@ const Home = () => {
       const productRef = ref(database, `products/${product.id}`);
       update(productRef, { quantity: updatedQuantity })
         .then(() => {
-          console.log("Product quantity updated successfully.");
           updateProductQuantity(product.id, updatedQuantity);
           setOriginalQuantities((prev) => ({
             ...prev,
             [product.id]: updatedQuantity,
           }));
         })
-        .catch((error) => {
-          console.error("Error updating product quantity:", error);
-        });
+        .catch((error) =>
+          console.error("Error updating product quantity:", error)
+        );
     });
 
     // Record sales data
@@ -151,6 +165,8 @@ const Home = () => {
     setShowCartModal(false);
     setShowCheckoutToast(true);
     setTimeout(() => setShowCheckoutToast(false), 3000);
+
+    generatePDF();
   };
 
   const filteredProducts = products
@@ -193,11 +209,17 @@ const Home = () => {
         </h1>
 
         <div className="d-flex justify-content-center">
-          <button onClick={handleHomeClick} className="btn btn-link text-decoration-none text-dark">
+          <button
+            onClick={handleHomeClick}
+            className="btn btn-link text-decoration-none text-dark"
+          >
             Home
           </button>
           {currentUser && (
-            <button onClick={handleAdminClick} className="btn btn-link text-decoration-none text-dark">
+            <button
+              onClick={handleAdminClick}
+              className="btn btn-link text-decoration-none text-dark"
+            >
               Admin
             </button>
           )}
@@ -207,7 +229,7 @@ const Home = () => {
               id="user-nav-dropdown"
               className="mt-2 fw-bold"
             >
-              <NavDropdown.Item onClick={handleLogout} >Logout</NavDropdown.Item>
+              <NavDropdown.Item onClick={handleLogout}>Logout</NavDropdown.Item>
             </NavDropdown>
           )}
         </div>

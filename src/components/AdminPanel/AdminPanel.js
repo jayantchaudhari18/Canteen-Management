@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { Container, Row, Col } from "react-bootstrap";
 import { database } from "../../firebase";
 import { ref, onValue } from "firebase/database";
+import OrderHistory from "./OrderHistory.js";
 import ChartComponent from "./ChartComponent";
 import SummaryComponent from "./SummaryComponent";
 import BestSellersComponent from "./BestSellersComponent";
@@ -179,6 +180,11 @@ const AdminPanel = () => {
           <BestSellersComponent bestSellers={salesData.bestSellers} />
         </Col>
       </Row>
+      <Row>
+        <Col xs={12}>
+          <OrderHistory />
+        </Col>
+      </Row>  
       <Row>
         <Col xs={12} md={6}>
           <AddProductForm />
