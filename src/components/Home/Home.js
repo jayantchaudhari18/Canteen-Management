@@ -200,13 +200,21 @@ const Home = () => {
 
   const handleHomeClick = () => {
     setShowAdmin(false);
+    setShowOrderHistory(false);
   };
 
   return (
     <div className="d-flex flex-column min-vh-100">
       <Container className="d-flex flex-column align-items-center my-3 py-3">
         <h1 className="fw-bold">
-          <Link to="/" className="text-decoration-none text-dark">
+          <Link
+            to="/"
+            className="text-decoration-none text-dark"
+            onClick={() => {
+              setShowAdmin(false);
+              setShowOrderHistory(false);
+            }}
+          >
             Canteen Management
           </Link>
         </h1>
@@ -214,23 +222,23 @@ const Home = () => {
         <div className="d-flex justify-content-center">
           <button
             onClick={handleHomeClick}
-            className="btn btn-link text-decoration-none text-dark"
+            className="btn btn-Link text-decoration-none text-dark"
           >
             Home
           </button>
           <button
-          onClick={() => {
-            setShowOrderHistory(true);
-            setShowAdmin(false);
-          }}
-          className="btn btn-link text-decoration-none text-dark"
-        >
-          My Orders
-        </button>
+            onClick={() => {
+              setShowOrderHistory(true);
+              setShowAdmin(false);
+            }}
+            className="btn btn-Link text-decoration-none text-dark"
+          >
+            My Orders
+          </button>
           {currentUser && (
             <button
               onClick={handleAdminClick}
-              className="btn btn-link text-decoration-none text-dark"
+              className="btn btn-Link text-decoration-none text-dark"
             >
               Admin
             </button>
