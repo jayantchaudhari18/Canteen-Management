@@ -1,72 +1,108 @@
 # Canteen Management System
-<img src="./Images/project-1.png" width="50%"><img src="./Images/project-2.png" width="50%">
-<img src="./Images/project-3.png" width="50%"><img src="./Images/project-4.png" width="50%">
+
+<img src="./Images/project-1.png" width="100%">
 
 ## Overview
 
-This Canteen Management System is a web-based application designed to streamline the process of ordering food items in a canteen or cafeteria setting. Built with React and Firebase, it offers a user-friendly interface for browsing products, adding items to a cart, and completing purchases.
+The Canteen Management System is a web-based application designed to streamline food ordering processes in canteens or cafeteria settings. Built with **React** and **Firebase**, this application offers an intuitive interface for users to browse products, add items to a cart, and complete purchases. Additionally, it provides order history features for users and administrators, with data visualization and PDF export options for easy record-keeping.
 
 **[Live Demo](https://sauravrwt.github.io/Canteen-Management/)**
 
-<img src="./Images/project-5.png" width="50%"><img src="./Images/project-6.png" width="50%">
-<img src="./Images/project-7.png" width="50%">
-
 ## Features
 
-- **Product Catalog**: Browse through a list of available food items with details such as name, price, and quantity.
-- **Search Functionality**: Easily find products using the search bar.
-- **Product Details**: View detailed information about each product by clicking on it.
-- **Shopping Cart**: Add products to a cart, adjust quantities, and remove items as needed.
-- **Checkout Process**: Complete purchases with a simple checkout process.
-- **Real-time Updates**: Product quantities are updated in real-time using Firebase.
-- **Responsive Design**: Works seamlessly on desktop and mobile devices.
+- **Product Catalog**: A browsable list of available food items with details like name, price, and quantity.
+- **Search Functionality**: A search bar to quickly find specific products.
+- **Product Details**: View in-depth details for each product by selecting an item.
+- **Shopping Cart**: Add items to the cart, adjust quantities, and remove items as needed.
+- **Checkout Process**: Simple, streamlined checkout process for completing purchases.
+- **Real-time Updates**: Product quantities are automatically updated in real-time using Firebase.
+- **Order History**: 
+  - **User Order History**: Allows users to track their own past orders.
+  - **Admin Order History**: Enables administrators to view the full order history of all users.
+- **Data Visualization**: Using `Recharts`, users and admins can visualize order data for insights into ordering trends.
+- **PDF Export**: Integrated `jspdf` to allow users and admins to export order history as PDF files for easy offline reference.
+- **Advanced Reporting**: Built-in reporting with visual analytics to track weekly, monthly, and yearly sales performance in the admin panel.
+- **Responsive Design**: Fully responsive layout for seamless use on desktop and mobile devices.
+- **Secure Authentication**: Integrated **Firebase Authentication** for secure login and user management.
 
 ## Technologies Used
 
-- React.js
-- Firebase (Realtime Database)
-- Bootstrap 5
-- React Bootstrap
-- Recharts
+- **React.js** for front-end development
+- **Firebase (Realtime Database & Authentication)** for real-time data handling, storage, and secure user management
+- **Bootstrap 5** and **React Bootstrap** for UI components
+- **Recharts** for data visualization
+- **JSPDF** for exporting data as PDF files
 
 ## Installation and Setup
 
-1. Clone the repository: `git clone https://github.com/SauRavRwT/canteen-management-system.git`
+Follow these steps to set up the project locally:
 
-2. Navigate to the project directory: `cd canteen-management-system`
+1. **Clone the Repository**:
+   ```bash
+   git clone https://github.com/SauRavRwT/canteen-management-system.git
+   ```
 
-3. Install dependencies: `npm install`
+2. **Navigate to the Project Directory**:
+   ```bash
+   cd canteen-management-system
+   ```
 
-4. Set up Firebase:
-- Create a Firebase project at [https://console.firebase.google.com/](https://console.firebase.google.com/)
-- Add a web app to your Firebase project
-- Copy the Firebase configuration
-- Create a `firebase.js` file in the root of your project and add your Firebase config:
+3. **Install Dependencies**:
+   ```bash
+   npm install
+   ```
 
-  ```firebase.js
-  apiKey: your_api_key
-  authDomain: your_auth_domain
-  databaseURL: your_databaseurl
-  projectId: your_project_id
-  storageBucket: your_storage_bucket
-  messagingSenderId: your_messaging_sender_id
-  appd: your_app_id
-  ```
-<img src="./Images/firebase-1.png"><img src="./Images/firebase-2.png">
+4. **Set Up Firebase**:
+   - Create a Firebase project at [Firebase Console](https://console.firebase.google.com/)
+   - Add a web app to your Firebase project
+   - Enable Firebase Authentication for secure user management
+   - Copy the Firebase configuration and create a `firebase.js` file in the project root with your configuration:
 
-5. Start the development server: `npm start`
+     ```javascript
+     // firebase.js
+     export const firebaseConfig = {
+       apiKey: "your_api_key",
+       authDomain: "your_auth_domain",
+       databaseURL: "your_databaseurl",
+       projectId: "your_project_id",
+       storageBucket: "your_storage_bucket",
+       messagingSenderId: "your_messaging_sender_id",
+       appId: "your_app_id"
+     };
+     ```
 
-6. Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+   <img src="./Images/firebase-1.png"><img src="./Images/firebase-2.png">
+
+5. **Start the Development Server**:
+   ```bash
+   npm start
+   ```
+
+6. Open the application in your browser at [http://localhost:3000](http://localhost:3000).
 
 ## Usage
 
-- Browse through the product list on the main page.
-- Use the search bar to find specific items.
-- Click on a product to view more details.
-- Add items to your cart.
-- View your cart and adjust quantities as needed.
-- Proceed to checkout to complete your order.
+1. **Browse Products**: View a list of available products on the homepage.
+2. **Search for Items**: Use the search bar to quickly locate items.
+3. **View Product Details**: Click on a product to see more details, such as a description, available quantity, and price.
+4. **Manage Cart**: Add products to your cart, adjust quantities, and remove items if needed.
+5. **Checkout**: Proceed to checkout to place your order.
+6. **User Authentication**: Log in to access personalized features such as order history.
+7. **View Order History**:
+   - **User View**: Access your own order history.
+   - **Admin View**: Access the full order history for all users, with options to visualize data and export as PDF.
+8. **Advanced Reporting**: The admin panel includes visual reports on weekly, monthly, and yearly performance, offering insights into sales trends.
+
+## Recent Updates
+
+- **Order History**: 
+  - **User Order History**: Users can view their own order history.
+  - **Admin Order History**: Admins can access the complete order history for all users, streamlining record-keeping and inventory management.
+
+- **Recharts Integration**: Data visualization with `Recharts` enables users and admins to understand ordering trends and make data-driven decisions.
+
+- **PDF Generation**: Integrated `jspdf` allows users and admins to export order history as PDF files, useful for offline record-keeping and administrative purposes.
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+We welcome contributions! If you’d like to help improve this project, feel free to fork the repository and submit a Pull Request.
