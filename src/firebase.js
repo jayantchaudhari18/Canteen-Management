@@ -3,13 +3,13 @@ import { getDatabase } from "firebase/database";
 import { getAuth } from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyA3Tu2kwpxkWmr19PN-239Q_KkKz2LqOWw",
-  authDomain: "e-commerce-a0df3.firebaseapp.com",
-  databaseURL: "https://e-commerce-a0df3-default-rtdb.firebaseio.com",
-  projectId: "e-commerce-a0df3",
-  storageBucket: "e-commerce-a0df3.appspot.com",
-  messagingSenderId: "833033255866",
-  appId: "1:833033255866:web:6e169b0b96db697d077b83",
+  apiKey: "AIzaSyBnwXb9s7E-TtxwltP7xC9mMQXumMumUa0",
+  authDomain: "canteen-management-e8ad6.firebaseapp.com",
+  databaseURL: "https://canteen-management-e8ad6-default-rtdb.firebaseio.com",
+  projectId: "canteen-management-e8ad6",
+  storageBucket: "canteen-management-e8ad6.appspot.com",
+  messagingSenderId: "666802524742",
+  appId: "1:666802524742:web:76a5d25c67b970f375f047"
 };
 
 // Initialize Firebase
