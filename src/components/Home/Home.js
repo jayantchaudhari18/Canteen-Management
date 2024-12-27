@@ -38,19 +38,12 @@ const Home = () => {
 
   useEffect(() => {
     if (products && products.length > 0) {
-      setOriginalQuantities((prevQuantities) => {
-        const updatedQuantities = products.reduce((acc, product) => {
-          acc[product.id] = product.quantity;
-          return acc;
-        }, {});
-        // Only update state if there's a difference, preventing re-renders
-        if (
-          JSON.stringify(updatedQuantities) !== JSON.stringify(prevQuantities)
-        ) {
-          return updatedQuantities;
-        }
-        return prevQuantities;
-      });
+      const updatedQuantities = products.reduce((acc, product) => {
+        acc[product.id] = product.quantity;
+        return acc;
+      }, {});
+
+      setOriginalQuantities(updatedQuantities);
     }
   }, [products]);
 
@@ -62,16 +55,54 @@ const Home = () => {
 
   const generatePDF = () => {
     const doc = new jsPDF();
-    doc.text("Canteen", 10, 10);
-    doc.text("Items Purchased", 10, 20);
+    const pageWidth = doc.internal.pageSize.width;
+    const date = new Date().toLocaleDateString();
+    const time = new Date().toLocaleTimeString();
+
+    // Header
+    doc.setFontSize(22);
+    doc.text("CANTEEN RECEIPT", pageWidth / 2, 15, { align: "center" });
+
+    doc.setFontSize(12);
+    doc.text("Date: " + date, 10, 30);
+    doc.text("Time: " + time, 10, 37);
+    doc.text(
+      "Customer: " + (currentUser?.displayName || currentUser?.email),
+      10,
+      44
+    );
+
+    // Line separator
+    doc.setLineWidth(0.5);
+    doc.line(10, 50, pageWidth - 10, 50);
+
+    // Column headers
+    doc.setFont("helvetica", "bold");
+    doc.text("Item", 10, 60);
+    doc.text("Qty", 130, 60);
+    doc.text("Price", 150, 60);
+    doc.text("Amount", 170, 60);
+
+    // Items
+    doc.setFont("helvetica", "normal");
     cart.forEach((product, index) => {
-      const itemText = `${index + 1}.${product.name} - ${product.quantity} x ${
-        product.price
-      } = ${product.quantity * product.price}`;
-      doc.text(itemText, 10, 30 + index * 10);
+      const y = 70 + index * 10;
+      doc.text(product.name, 10, y);
+      doc.text(product.quantity.toString(), 130, y);
+      doc.text(product.price.toFixed(2), 150, y);
+      doc.text((product.quantity * product.price).toFixed(2), 170, y);
     });
-    doc.text(`Total: ${calculateTotal()}`, 10, 40 + cart.length * 10);
-    doc.save("Canteen-Bill.pdf");
+
+    // Footer
+    const totalY = 80 + cart.length * 10;
+    doc.line(10, totalY, pageWidth - 10, totalY);
+    doc.setFont("helvetica", "bold");
+    doc.text("Total Amount:", 130, totalY + 10);
+    doc.text(`$${calculateTotal().toFixed(2)}`, 170, totalY + 10);
+
+    doc.save(
+      `Canteen-Bill-${date.replace(/\//g, "-")}-${time.replace(/\//g, "-")}.pdf`
+    );
   };
 
   const addToCart = (product) => {
