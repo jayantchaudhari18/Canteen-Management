@@ -330,16 +330,23 @@ const Home = () => {
                 View Cart ({cart.length})
               </button>
             )}
-            <ProductList
-              products={filteredProducts.map((p) => ({
-                ...p,
-                quantity:
-                  originalQuantities[p.id] -
-                  (cart.find((cp) => cp.id === p.id)?.quantity || 0),
-              }))}
-              addToCart={addToCart}
-              onProductClick={handleProductClick}
-            />
+            {filteredProducts.length > 0 ? (
+              <ProductList
+                products={filteredProducts.map((p) => ({
+                  ...p,
+                  quantity:
+                    originalQuantities[p.id] -
+                    (cart.find((cp) => cp.id === p.id)?.quantity || 0),
+                }))}
+                addToCart={addToCart}
+                onProductClick={handleProductClick}
+              />
+            ) : (
+              <div className="text-center mt-5">
+                <h3>Sorry, we're currently not serving any items.</h3>
+                <p className="text-muted">Please check back later or contact <a className="text-decoration-none" href="https://github.com/SauRavRwT/">maintainer</a>!</p>
+              </div>
+            )}
             <CartModal
               show={showCartModal}
               handleClose={() => setShowCartModal(false)}
