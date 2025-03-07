@@ -16,7 +16,6 @@ import {
   Form,
   InputGroup,
   Container,
-  NavDropdown,
 } from "react-bootstrap";
 import { useAuth } from "../../AuthContext";
 import jsPDF from "jspdf";
@@ -253,7 +252,7 @@ const Home = () => {
         <div className="d-flex justify-content-center">
           <button
             onClick={handleHomeClick}
-            className="btn btn-Link text-decoration-none text-dark"
+            className="btn btn-Link text-decoration-none text-dark fw-bold"
           >
             Home
           </button>
@@ -262,26 +261,31 @@ const Home = () => {
               setShowOrderHistory(true);
               setShowAdmin(false);
             }}
-            className="btn btn-Link text-decoration-none text-dark"
+            className="btn btn-Link text-decoration-none text-dark fw-bold"
           >
             My Orders
           </button>
           {currentUser && (
             <button
               onClick={handleAdminClick}
-              className="btn btn-Link text-decoration-none text-dark"
+              className="btn btn-Link text-decoration-none text-dark fw-bold"
             >
               Admin
             </button>
           )}
           {currentUser && (
-            <NavDropdown
-              title={`Hello, ${currentUser.displayName || currentUser.email}`}
-              id="user-nav-dropdown"
-              className="mt-2 fw-bold"
-            >
-              <NavDropdown.Item onClick={handleLogout}>Logout</NavDropdown.Item>
-            </NavDropdown>
+            <div className="d-flex align-items-center fw-bold">
+            <img
+              src={`https://ui-avatars.com/api/?name=${currentUser.email}&background=random`}
+              alt="profile"
+              className="rounded-circle me-2"
+              width="30"
+              height="30"
+            />
+            {`Hello, ${currentUser.displayName || currentUser.email.split('@')[0]}`}
+
+            <button className="rounded-5 btn button btn-sm m-2 btn-danger fw-bold" onClick={handleLogout}>Logout</button>
+          </div>
           )}
         </div>
       </Container>
